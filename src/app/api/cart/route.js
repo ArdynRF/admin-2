@@ -23,7 +23,7 @@ export async function POST(request) {
     });
 
     return NextResponse.json({
-      message: "Cart berhasil ditambahkan",
+      message: "Cart telah berhasil ditambahkan",
       data: newCart,
     });
   } catch (error) {
