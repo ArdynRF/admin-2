@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { createJWT } from "@/lib/utils";
 
+
 export async function POST(request) {
   try {
     const data = await request.json();
