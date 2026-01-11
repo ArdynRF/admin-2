@@ -35,6 +35,7 @@ export const createProduct = async (formData) => {
   const charateristic = formData.get("charateristic");
   const moq = formData.get("moq");
   const sample_price = formData.get("sample_price");
+  const currentStock = parseInt(formData.get("currentStock"));
   const isCustomization = formData.get("isCustomization") === "on";
   const weight = formData.get("weight");
   const width = formData.get("width");
@@ -63,6 +64,7 @@ export const createProduct = async (formData) => {
       mrp,
       image: imageUrl,
       productTypeId,
+      currentStock,
       isActive,
       material,
       charateristic,
@@ -150,6 +152,7 @@ export async function editProduct(formData, productId, existingImage) {
   const charateristic = formData.get("charateristic");
   const moq = formData.get("moq");
   const sample_price = formData.get("sample_price");
+  const currentStock = parseInt(formData.get("currentStock"));
   const isCustomization = formData.get("isCustomization") === "on";
   const weight = formData.get("weight");
   const width = formData.get("width");
@@ -176,6 +179,7 @@ export async function editProduct(formData, productId, existingImage) {
       mrp,
       image: imageUrl,
       productTypeId,
+      currentStock,
       isActive,
       material,
       charateristic,

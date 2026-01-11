@@ -144,6 +144,15 @@ const AddProducts = ({
         </div>
 
         <div className="grid gap-2">
+          <Label required={true}>Stock</Label>
+          <Input
+            name="currentStock"
+            placeholder="Enter Stock product"
+            required
+          />
+        </div>
+
+        <div className="grid gap-2">
           <Label required={true}>Product Status</Label>
           <Switch name="isActive" />
         </div>
