@@ -1,24 +1,26 @@
-import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 
-export async function GET(request, { params }) {
+export async function GET(req, { params }) {
   try {
-    const { userId } = params;
+    const { userId } = await params;
+    console.log(userId);
 
     const carts = await db.cart.findMany({
-      where: { userId: Number(userId) },
+      where: {
+        userId: Number(userId),
+      },
       include: {
         product: true,
       },
     });
 
-    return NextResponse.json({
-      message: "Cart berhasil diambil",
-      data: carts,
-    });
+    console.log(carts);
+    return NextResponse.json(carts);
   } catch (error) {
+    console.error("Database error:", error);
     return NextResponse.json(
-      { message: "Something Went Wrong", error: error.message },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
