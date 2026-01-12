@@ -30,7 +30,7 @@ export async function GET(req) {
     !!search;
 
   try {
-    const products = await db.product.findMany({
+    let products = await db.product.findMany({
       where: {
         isActive: true,
         ...(search && {
@@ -75,6 +75,23 @@ export async function GET(req) {
         patterns: true,
       },
     });
+
+    for (const product of products) {
+      const lowest = await db.productPricingTier.findFirst({
+        where: { productId: product.id },
+        orderBy: { unitPrice: "asc" },
+        select: { unitPrice: true },
+      });
+
+      const highest = await db.productPricingTier.findFirst({
+        where: { productId: product.id },
+        orderBy: { unitPrice: "desc" },
+        select: { unitPrice: true },
+      });
+
+      product.lowestPrice = lowest?.unitPrice || null;
+      product.highestPrice = highest?.unitPrice || null;
+    }
 
     return NextResponse.json({
       status: 200,
