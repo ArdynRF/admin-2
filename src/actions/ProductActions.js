@@ -40,6 +40,8 @@ export const createProduct = async (formData) => {
   const weight = formData.get("weight");
   const width = formData.get("width");
 
+  const colorVariants = JSON.parse(formData.get("colorVariants") || "[]");
+
   const technicIds = formData.getAll("technicIds").map((id) => parseInt(id));
   const styleIds = formData.getAll("styleIds").map((id) => parseInt(id));
   const patternIds = formData.getAll("patternIds").map((id) => parseInt(id));
@@ -73,6 +75,12 @@ export const createProduct = async (formData) => {
       isCustomization,
       weight,
       width,
+      colorStocks: colorVariants.length > 0 ? {
+        create: colorVariants.map((variant) => ({
+          color: variant.colorName,
+          stock: parseInt(variant.stock) || 0,
+        })),
+      } : undefined,
       priceTiers: {
         create: priceTiers.map((tier) => ({
           minQty: parseInt(tier.minQty),
@@ -97,6 +105,7 @@ export async function getProducts() {
       technics: true,
       styles: true,
       patterns: true,
+      colorStocks: true,
     },
   });
 }
@@ -110,6 +119,7 @@ export async function getProductById(productId) {
       technics: true,
       styles: true,
       patterns: true,
+      colorStocks: true,
     },
   });
 }

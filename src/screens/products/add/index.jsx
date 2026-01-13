@@ -14,6 +14,29 @@ const AddProducts = ({
   styles,
   patterns,
 }) => {
+
+  const [colorVariants, setColorVariants] = useState([
+    { colorName: "", stock: 0 }
+  ]);
+
+  // ✅ HANDLER FUNCTIONS
+  const addColorVariant = () => {
+    setColorVariants([...colorVariants, { colorName: "", stock: 0 }]);
+  };
+
+  const removeColorVariant = (index) => {
+    if (colorVariants.length <= 1) return;
+    const newVariants = [...colorVariants];
+    newVariants.splice(index, 1);
+    setColorVariants(newVariants);
+  };
+
+  const updateColorVariant = (index, field, value) => {
+    const newVariants = [...colorVariants];
+    newVariants[index][field] = value;
+    setColorVariants(newVariants);
+  };
+
   const [priceTiers, setPriceTiers] = useState([
     { minQty: "", maxQty: "", unitPrice: "" },
   ]);
@@ -53,6 +76,7 @@ const AddProducts = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
+    formData.append("colorVariants", JSON.stringify(colorVariants));
     formData.append("priceTiers", JSON.stringify(priceTiers));
     try {
       await createProduct(formData);
@@ -195,6 +219,55 @@ const AddProducts = ({
             <Label>Patterns</Label>
             {renderCheckboxGroup(patterns, "patternIds")}
           </div>
+        </div>
+
+        <div className="col-span-2 mt-6">
+          <Label required={true}>Varian Warna & Stock</Label>
+          
+          {colorVariants.map((variant, index) => (
+            <div key={index} className="grid grid-cols-4 gap-4 mb-4 items-center">    
+              <div className="col-span-1">
+                {/* Input nama warna */}
+                <Input
+                  type="text"
+                  placeholder="Nama Warna"
+                  value={variant.colorName}
+                  onChange={(e) => updateColorVariant(index, "colorName", e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="col-span-1">
+                {/* Input stock */}
+                <Input
+                  type="number"
+                  placeholder="Stock"
+                  value={variant.stock}
+                  onChange={(e) => updateColorVariant(index, "stock", e.target.value)}
+                  min="0"
+                  required
+                />
+              </div>
+              
+              <div className="col-span-1">
+                {/* Tombol hapus - hanya muncul jika lebih dari 1 varian */}
+                {colorVariants.length > 1 && (
+                  <Button
+                    type="button"
+                    onClick={() => removeColorVariant(index)}
+                    variant="destructive"
+                    className="w-full"
+                  >
+                    Delete
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+          
+          <Button type="button" onClick={addColorVariant} className="mt-2">
+            + add Color Variant
+          </Button>
         </div>
 
         <div className="col-span-2 mt-6">
