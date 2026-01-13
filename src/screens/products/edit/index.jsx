@@ -26,8 +26,6 @@ const EditProducts = ({
     })) ?? [] 
   );
 
-  console.log("color", colorStocks);
-
   // ✅ HANDLER FUNCTIONS
   const addColorVariant = () => {
     setColorVariants([...colorStocks, { color: "", stock: 0 }]);
@@ -54,7 +52,6 @@ const EditProducts = ({
       unitPrice: tier.unitPrice.toString(),
     })) ?? []
   );
- console.log("Initial price tiers:", priceTiers);
 
   const addTier = () => {
     setPriceTiers([...priceTiers, { minQty: "", maxQty: "", unitPrice: "" }]);
@@ -97,6 +94,7 @@ const EditProducts = ({
     e.preventDefault();
     const formData = new FormData(e.target);
     formData.append("priceTiers", JSON.stringify(priceTiers));
+    formData.append("colorStocks", JSON.stringify(colorStocks));
 
     try {
       await editProduct(formData, product.id, product.image);
@@ -178,14 +176,14 @@ const EditProducts = ({
           />
         </div>
 
-        <div className="grid gap-2">
+        {/* <div className="grid gap-2">
           <Label required={true}>Stock</Label>
           <Input
             name="currentStock"
             defaultValue={product.currentStock || ""}
             required
           />
-        </div>
+        </div> */}
 
         <div className="grid gap-2">
           <Label required={true}>Product Status</Label>
@@ -246,7 +244,7 @@ const EditProducts = ({
         </div>
 
         <div className="col-span-2 mt-6">
-          <Label required={true}>Varian Warna & Stock</Label>
+          <Label required={true}>Color Variant & Stock</Label>
           
           {/* Tampilkan total stock */}
           <div className="mb-3 p-2 bg-blue-50 rounded">
@@ -263,7 +261,7 @@ const EditProducts = ({
                   type="text"
                   placeholder="Nama Warna"
                   value={variant.color}
-                  onChange={(e) => updateColorVariant(index, "colorName", e.target.value)}
+                  onChange={(e) => updateColorVariant(index, "color", e.target.value)}
                   required
                 />
               </div>
@@ -295,7 +293,7 @@ const EditProducts = ({
           ))}
           
           <Button type="button" onClick={addColorVariant} className="mt-2">
-            + Add Color Variant
+            + Add 
           </Button>
         </div>
 

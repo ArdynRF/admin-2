@@ -167,14 +167,14 @@ const AddProducts = ({
           />
         </div>
 
-        <div className="grid gap-2">
+        {/* <div className="grid gap-2">
           <Label required={true}>Stock</Label>
           <Input
             name="currentStock"
             placeholder="Enter Stock product"
             required
           />
-        </div>
+        </div> */}
 
         <div className="grid gap-2">
           <Label required={true}>Product Status</Label>
@@ -222,7 +222,7 @@ const AddProducts = ({
         </div>
 
         <div className="col-span-2 mt-6">
-          <Label required={true}>Varian Warna & Stock</Label>
+          <Label required={true}>Color Variant & Stock</Label>
           
           {colorVariants.map((variant, index) => (
             <div key={index} className="grid grid-cols-4 gap-4 mb-4 items-center">    
@@ -266,7 +266,7 @@ const AddProducts = ({
           ))}
           
           <Button type="button" onClick={addColorVariant} className="mt-2">
-            + add Color Variant
+            + Add
           </Button>
         </div>
 
