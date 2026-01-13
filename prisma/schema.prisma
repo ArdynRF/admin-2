@@ -140,13 +140,15 @@ model Cart {
   id        Int      @id @default(autoincrement())
   userId    Int
   productId Int
-  quantity  Int      @default(1)
-  question  String?  // SQLite otomatis TEXT
+  quantity  Int      
   addedAt   DateTime @default(now())
+  priceTotal Int @default(0)
+  color String?
+  status String?
 
-  // Relasi
+ 
   user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 
-  @@unique([userId, productId]) // satu user hanya boleh punya 1 cart untuk 1 product
+  @@unique([userId, productId]) 
 }

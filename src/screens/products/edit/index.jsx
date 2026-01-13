@@ -16,8 +16,37 @@ const EditProducts = ({
   patterns,
   product,
 }) => {
+
+  // ✅ PERBAIKAN: Gunakan colorStocks (bukan colorVariants)
+  const [colorStocks, setColorVariants] = useState(
+    product.colorStocks?.map((stock) => ({
+      id: stock.productId,
+      color: stock.color,    
+      stock: stock.stock,
+    })) ?? [] 
+  );
+
+  // ✅ HANDLER FUNCTIONS
+  const addColorVariant = () => {
+    setColorVariants([...colorStocks, { color: "", stock: 0 }]);
+  };
+
+  const removeColorVariant = (index) => {
+    if (colorStocks.length <= 1) return;
+    const newVariants = [...colorStocks];
+    newVariants.splice(index, 1);
+    setColorVariants(newVariants);
+  };
+
+  const updateColorVariant = (index, field, value) => {
+    const newVariants = [...colorStocks];
+    newVariants[index][field] = value;
+    setColorVariants(newVariants);
+  };
+
   const [priceTiers, setPriceTiers] = useState(
     product?.priceTiers?.map((tier) => ({
+      productid: tier.productId,
       minQty: tier.minQty.toString(),
       maxQty: tier.maxQty?.toString() ?? "",
       unitPrice: tier.unitPrice.toString(),
@@ -65,6 +94,7 @@ const EditProducts = ({
     e.preventDefault();
     const formData = new FormData(e.target);
     formData.append("priceTiers", JSON.stringify(priceTiers));
+    formData.append("colorStocks", JSON.stringify(colorStocks));
 
     try {
       await editProduct(formData, product.id, product.image);
@@ -146,14 +176,14 @@ const EditProducts = ({
           />
         </div>
 
-        <div className="grid gap-2">
+        {/* <div className="grid gap-2">
           <Label required={true}>Stock</Label>
           <Input
             name="currentStock"
             defaultValue={product.currentStock || ""}
             required
           />
-        </div>
+        </div> */}
 
         <div className="grid gap-2">
           <Label required={true}>Product Status</Label>
@@ -213,7 +243,60 @@ const EditProducts = ({
           </div>
         </div>
 
-        {/* ✅ Price Tiers */}
+        <div className="col-span-2 mt-6">
+          <Label required={true}>Color Variant & Stock</Label>
+          
+          {/* Tampilkan total stock */}
+          <div className="mb-3 p-2 bg-blue-50 rounded">
+            <span className="font-medium">Total Stock: </span>
+            <span className="text-lg font-bold">
+              {colorStocks.reduce((total, variant) => total + (parseInt(variant.stock) || 0), 0)}
+            </span>
+          </div>
+          
+          {colorStocks.map((variant, index) => (
+            <div key={index} className="grid grid-cols-4 gap-4 mb-4 items-center">
+              <div className="col-span-2">
+                <Input
+                  type="text"
+                  placeholder="Nama Warna"
+                  value={variant.color}
+                  onChange={(e) => updateColorVariant(index, "color", e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="col-span-1">
+                <Input
+                  type="number"
+                  placeholder="Stock"
+                  value={variant.stock}
+                  onChange={(e) => updateColorVariant(index, "stock", e.target.value)}
+                  min="0"
+                  required
+                />
+              </div>
+              
+              <div className="col-span-1">
+                {colorStocks.length > 1 && (
+                  <Button
+                    type="button"
+                    onClick={() => removeColorVariant(index)}
+                    variant="destructive"
+                    className="w-full"
+                  >
+                    Delete
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+          
+          <Button type="button" onClick={addColorVariant} className="mt-2">
+            + Add 
+          </Button>
+        </div>
+
         {/* ✅ Price Tiers */}
         <div className="col-span-2 mt-6">
           {/* Label per kolom */}

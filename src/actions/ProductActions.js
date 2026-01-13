@@ -35,10 +35,12 @@ export const createProduct = async (formData) => {
   const charateristic = formData.get("charateristic");
   const moq = formData.get("moq");
   const sample_price = formData.get("sample_price");
-  const currentStock = parseInt(formData.get("currentStock"));
+  // const currentStock = parseInt(formData.get("currentStock"));
   const isCustomization = formData.get("isCustomization") === "on";
   const weight = formData.get("weight");
   const width = formData.get("width");
+
+  const colorVariants = JSON.parse(formData.get("colorVariants") || "[]");
 
   const technicIds = formData.getAll("technicIds").map((id) => parseInt(id));
   const styleIds = formData.getAll("styleIds").map((id) => parseInt(id));
@@ -64,7 +66,7 @@ export const createProduct = async (formData) => {
       mrp,
       image: imageUrl,
       productTypeId,
-      currentStock,
+      // currentStock,
       isActive,
       material,
       charateristic,
@@ -73,6 +75,12 @@ export const createProduct = async (formData) => {
       isCustomization,
       weight,
       width,
+      colorStocks: colorVariants.length > 0 ? {
+        create: colorVariants.map((variant) => ({
+          color: variant.colorName,
+          stock: parseInt(variant.stock) || 0,
+        })),
+      } : undefined,
       priceTiers: {
         create: priceTiers.map((tier) => ({
           minQty: parseInt(tier.minQty),
@@ -97,6 +105,7 @@ export async function getProducts() {
       technics: true,
       styles: true,
       patterns: true,
+      colorStocks: true,
     },
   });
 }
@@ -110,6 +119,7 @@ export async function getProductById(productId) {
       technics: true,
       styles: true,
       patterns: true,
+      colorStocks: true,
     },
   });
 }
@@ -152,10 +162,12 @@ export async function editProduct(formData, productId, existingImage) {
   const charateristic = formData.get("charateristic");
   const moq = formData.get("moq");
   const sample_price = formData.get("sample_price");
-  const currentStock = parseInt(formData.get("currentStock"));
+  // const currentStock = parseInt(formData.get("currentStock"));
   const isCustomization = formData.get("isCustomization") === "on";
   const weight = formData.get("weight");
   const width = formData.get("width");
+
+  const colorStocks = JSON.parse(formData.get("colorStocks") || "[]");
 
   const technicIds = formData.getAll("technicIds").map((id) => parseInt(id));
   const styleIds = formData.getAll("styleIds").map((id) => parseInt(id));
@@ -179,7 +191,7 @@ export async function editProduct(formData, productId, existingImage) {
       mrp,
       image: imageUrl,
       productTypeId,
-      currentStock,
+      // currentStock,
       isActive,
       material,
       charateristic,
@@ -188,6 +200,13 @@ export async function editProduct(formData, productId, existingImage) {
       isCustomization,
       weight,
       width,
+      colorStocks: {
+        deleteMany: {},
+        create: colorStocks.map((variant) => ({
+          color: variant.color,
+          stock: parseInt(variant.stock) || 0,
+        })),
+      },
       priceTiers: {
         deleteMany: {},
         create: priceTiers.map((tier) => ({
