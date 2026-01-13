@@ -142,10 +142,13 @@ model Cart {
   productId Int
   quantity  Int      
   addedAt   DateTime @default(now())
+  priceTotal Int @default(0)
+  color String?
+  status String?
 
  
   user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 
-  @unique([userId, productId]) // satu user hanya boleh punya 1 cart untuk 1 product
+  @@unique([userId, productId]) 
 }
