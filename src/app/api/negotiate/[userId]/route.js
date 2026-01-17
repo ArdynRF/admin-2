@@ -4,9 +4,16 @@ import { db } from "@/lib/db";
 export async function GET() {
   try {
     // Clear existing negotiation items for user 3
-    await db.negotiation.deleteMany({
+
+    const checkData = await db.negotiation.findMany({
       where: { userId: 3 },
     });
+
+    if (checkData.length > 0) {
+      await db.negotiation.deleteMany({
+        where: { userId: 3 },
+      });
+    }
 
     const negotiations = await db.negotiation.createMany({
       data: [
