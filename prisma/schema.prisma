@@ -54,6 +54,7 @@ model Product {
   patterns      Pattern[]          @relation("ProductPatterns")
   colorStocks ProductColorStock[] // menampung banyak warna dan stock
   carts Cart[]
+  negotiations Negotiation[]
 }
 
 model ProductPricingTier {
@@ -108,6 +109,7 @@ model User {
   billingAddresses  BillingAddress[]
   shippingAddresses ShippingAddress[]
   carts Cart[]
+  negotiations Negotiation[]
 }
 
 model BillingAddress {
@@ -151,4 +153,27 @@ model Cart {
   product Product @relation(fields: [productId], references: [id])
 
   @@unique([userId, productId]) 
+}
+
+model Negotiation {
+  id           Int      @id @default(autoincrement())
+  userId       Int      
+  productId    Int      
+  quantity     Int      
+  offeredPrice Float    
+  sellerPrice  Float?   
+  finalPrice   Float?   
+  color        String?  
+  notes        String?  
+  status       String   @default("pending") 
+  createdAt    DateTime @default(now())     
+  updatedAt    DateTime @updatedAt          
+  expiresAt    DateTime?                    
+  respondedAt  DateTime?                    
+
+  // Relasi
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+    @@unique([userId, productId, status])
 }
