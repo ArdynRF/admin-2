@@ -43,7 +43,7 @@ const Products = ({ products }) => {
             <tr>
               <th>Image</th>
               <th>Name & Description</th>
-              <th>MRP</th>
+              <th>MOQ</th>
               <th>Product Type</th>
               <th>Current Stock</th>
               <th>Status</th>
@@ -71,11 +71,13 @@ const Products = ({ products }) => {
                     </span>
                   </div>
                 </td>
-                <td>{product.mrp}</td>
+                <td>{product.moq}</td>
                 <td>
                   {product.productType?.name || `ID ${product.productTypeId}`}
                 </td>
-                <td>{product.currentStock}</td>
+                <td>
+                  {product.colorStocks.reduce((total, variant) => total + (parseInt(variant.stock) || 0), 0)}
+                </td>
                 <td
                   className={cn(
                     product.isActive ? "text-green-500" : "text-red-500"
