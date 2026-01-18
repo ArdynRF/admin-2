@@ -16,6 +16,7 @@ export default function Sidebar({ userData }) {
     { text: "Pattern", url: "/pattern", icon: <SwatchIcon /> },
     { text: "Style", url: "/style-type", icon: <SwatchIcon /> },
     { text: "Products", url: "/products", icon: <ShoppingBagIcon /> },
+    { text: "Negotiate", url: "/negotiate", icon: <SwatchIcon /> },
   ];
 
   return (
