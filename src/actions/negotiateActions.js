@@ -82,3 +82,47 @@ export async function deleteNegotiate(id) {
     return { success: false, message: "Failed to delete negotiate" };
   }
 }
+
+// Tambahkan fungsi ini di negotiateActions.js
+export async function updateNegotiate(id, formData) {
+  try {
+    console.log("Updating negotiate with ID:", id);
+    console.log("Update data:", formData);
+    
+    // Data yang akan diupdate - HANYA status dan notes
+    const updateData = {
+      status: formData.status,
+      notes: formData.notes || null,
+    };
+    
+    // Jika status berubah dari pending, set respondedAt
+    if (formData.status !== "pending") {
+      updateData.respondedAt = new Date();
+    }
+    
+    // Update finalPrice berdasarkan status
+    if (formData.status === "accepted") {
+      updateData.finalPrice = formData.finalPrice || null;
+    }
+    
+    let updatedNegotiate = null;
+    
+    if (db.negotiation) {
+      updatedNegotiate = await db.negotiation.update({
+        where: { id: parseInt(id) },
+        data: updateData,
+      });
+    } else if (db.negotiate) {
+      updatedNegotiate = await db.negotiate.update({
+        where: { id: parseInt(id) },
+        data: updateData,
+      });
+    }
+    
+    console.log("Negotiate updated successfully");
+    return { success: true, data: updatedNegotiate };
+  } catch (error) {
+    console.error("Error updating negotiate:", error);
+    throw new Error("Failed to update negotiate");
+  }
+}

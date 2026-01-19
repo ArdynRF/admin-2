@@ -76,7 +76,7 @@ const Detail = ({ detail }) => {
         <div className="flex items-center gap-4">
           <Button 
             onClick={() => router.back()}
-            className="flex items-center gap-2 bg-white text-gray-600 hover:text-gray-800 rounded-md"
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors duration-200 !bg-transparent !hover:bg-gray-100"
             variant="ghost"
           >
             <ArrowLeftIcon />
@@ -88,13 +88,13 @@ const Detail = ({ detail }) => {
         </div>
         
         <div className="flex gap-3">
-          <Link href={`/negotiate/edit/${detail.id}`}>
+          <Link href={`/negotiate/update/${detail.id}`}>
             <Button className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
               Edit
             </Button>
           </Link>
           <Link href="/negotiate">
-            <Button className="px-6 py-2 border bg-white border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
+            <Button className="px-6 py-2 border border-gray-300 text-blue-600 hover:text-blue-800 bg-white hover:bg-blue-50 rounded-md transition-colors duration-200">
               View All
             </Button>
           </Link>
