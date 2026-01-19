@@ -17,7 +17,7 @@ export async function loginUser(formData){
             userName: data.userName
         }
     })
-    console.log(user);
+    // console.log(user);
     const isValidPassword = await bcrypt.compare(data.password, user?.password);
 
     if(!user || !isValidPassword){

@@ -4,13 +4,13 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(request) {
   try {
-    console.log("DELETE request received");
+    // console.log("DELETE request received");
     
     // Parse request body
     let negotiationIds;
     try {
       const body = await request.json();
-      console.log("Request body:", body);
+    //   console.log("Request body:", body);
       
       // Support multiple formats
       if (body.negotiationIds && Array.isArray(body.negotiationIds)) {
@@ -43,7 +43,7 @@ export async function DELETE(request) {
       );
     }
 
-    console.log("Deleting negotiations with IDs:", negotiationIds);
+    // console.log("Deleting negotiations with IDs:", negotiationIds);
 
     // Validate IDs
     const validIds = negotiationIds
@@ -64,7 +64,7 @@ export async function DELETE(request) {
       );
     }
 
-    console.log("Valid IDs to delete:", validIds);
+    // console.log("Valid IDs to delete:", validIds);
 
     // Check if negotiations exist before deleting
     const existingNegotiations = await db.negotiation.findMany({
@@ -96,7 +96,7 @@ export async function DELETE(request) {
       }
     });
 
-    console.log(`Successfully deleted ${result.count} negotiation(s)`);
+    // console.log(`Successfully deleted ${result.count} negotiation(s)`);
 
 
 
