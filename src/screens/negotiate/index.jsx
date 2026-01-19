@@ -21,7 +21,7 @@ const Negotiate = ({ negotiates }) => {
   };
 
   const handleViewDetail = (id) => {
-    router.push(`/negotiate/${id}`);
+    router.push(`/negotiate/detail/${id}`);
   };
 
   const formatDate = (dateString) => {
@@ -112,7 +112,7 @@ const Negotiate = ({ negotiates }) => {
                     <EyeIcon />
                   </Button>
                   <Link
-                    href={`/negotiate/detail/${negotiate.id}`}
+                    href={`/negotiate/edit/${negotiate.id}`}
                     className="w-fit text-green-500 hover:text-green-700"
                     title="Edit"
                   >
