@@ -112,7 +112,7 @@ const Negotiate = ({ negotiates }) => {
                     <EyeIcon />
                   </Button>
                   <Link
-                    href={`/negotiate/edit/${negotiate.id}`}
+                    href={`/negotiate/update/${negotiate.id}`}
                     className="w-fit text-green-500 hover:text-green-700"
                     title="Edit"
                   >
