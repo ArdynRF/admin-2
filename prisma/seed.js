@@ -8,9 +8,9 @@ async function main() {
   // 1. AdminUser
   const adminUser = await prisma.adminUser.create({
     data: {
-      userType: "admin",
+      userType: "Super Admin",
       userName: "admin",
-      password: "$2b$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u", // admin123
+      password: "$2b$05$i6M.rSR4t/r5JoxF46ZA0.Sr2g4Sg7GQ391BlEtER9Je0N17c6NhS", // admin123
     },
   });
 
@@ -19,7 +19,7 @@ async function main() {
     data: {
       name: "John Doe",
       email: "john@example.com",
-      password: "$2b$10$SLYStgBwM5ffuFDf6KXhB.NQvWfVk/3Rc8QH7JZ4d5t2nV1lL2pW6", // user123
+      password: "$2b$05$i6M.rSR4t/r5JoxF46ZA0.Sr2g4Sg7GQ391BlEtER9Je0N17c6NhS", // user123
       phone_number: "+6281234567890",
       tax_number: "123-456-789",
       billingAddresses: {
@@ -224,10 +224,10 @@ async function main() {
   console.log("\n=== LOGIN INFORMATION ===");
   console.log("ADMIN:");
   console.log("Username: admin");
-  console.log("Password: admin123");
+  console.log("Password: oke12345");
   console.log("\nUSER:");
   console.log("Email: john@example.com");
-  console.log("Password: user123");
+  console.log("Password: oke12345");
 }
 
 main()
