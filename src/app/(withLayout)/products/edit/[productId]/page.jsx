@@ -23,6 +23,7 @@ const EditProductPage = async ({ params, searchParams }) => {
       styles={styles}
       patterns={patterns}
       errorMessage={errorMessage ?? null}
+      
     />
   );
 };

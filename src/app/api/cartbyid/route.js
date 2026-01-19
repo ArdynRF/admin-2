@@ -8,8 +8,8 @@ export async function GET(request) {
     const userId = searchParams.get("user_id");
     const itemIdsParam = searchParams.get("item_ids");
 
-    console.log("user_id :", userId);
-    console.log("item_ids :", itemIdsParam);
+    // console.log("user_id :", userId);
+    // console.log("item_ids :", itemIdsParam);
 
     // Validate
     if (!userId) {
