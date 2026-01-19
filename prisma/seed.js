@@ -118,10 +118,10 @@ async function main() {
       currentStock: 100,
       material: "100% Katun",
       charateristic: "Breathable, Soft",
-      sample_price: "50000",
-      moq: "10 meter",
-      weight: "200 gsm",
-      width: "115 cm",
+      sample_price: '50000',
+      moq: '10',
+      weight: '200',
+      width: '115',
       priceTiers: {
         create: [
           { minQty: 1, maxQty: 10, unitPrice: 140000 },
@@ -159,10 +159,10 @@ async function main() {
       currentStock: 200,
       material: "100% Sutra",
       charateristic: "Shiny, Strong",
-      sample_price: "25000",
-      moq: "5 pcs",
-      weight: "50 g",
-      width: "N/A",
+      sample_price: '25000',
+      moq: '5',
+      weight: '50',
+      width: '10',
       priceTiers: {
         create: [
           { minQty: 1, maxQty: 20, unitPrice: 70000 },
