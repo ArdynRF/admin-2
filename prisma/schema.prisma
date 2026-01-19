@@ -53,6 +53,7 @@ model Product {
   styles        Style[]            @relation("ProductStyles")
   patterns      Pattern[]          @relation("ProductPatterns")
   colorStocks ProductColorStock[] // menampung banyak warna dan stock
+  sampleProducts ProductSample[]
   carts Cart[]
   negotiations Negotiation[]
 }
