@@ -15,11 +15,32 @@ const AddProducts = ({
   patterns,
 }) => {
 
+  const [colorSample, setColorSample] = useState([
+    { color_sample: "", stock_sample: 0 }
+  ]);
+
+  const addSample = () => {
+    setColorSample([...colorSample, { color_sample: "", stock_sample: 0 }]);
+  };
+
+  const removeSample = (index) => {
+    if (colorSample.length <= 1) return;
+    const newSamples = [...colorSample];
+    newSamples.splice(index, 1);
+    setColorSample(newSamples);
+  };
+
+  const updateSample = (index, field, value) => {
+    const newSamples = [...colorSample];
+    newSamples[index][field] = value;
+    setColorSample(newSamples);
+  };
+
+  // Warna dan stock
   const [colorVariants, setColorVariants] = useState([
     { colorName: "", stock: 0 }
   ]);
 
-  // ✅ HANDLER FUNCTIONS
   const addColorVariant = () => {
     setColorVariants([...colorVariants, { colorName: "", stock: 0 }]);
   };
@@ -78,6 +99,8 @@ const AddProducts = ({
     const formData = new FormData(e.target);
     formData.append("colorVariants", JSON.stringify(colorVariants));
     formData.append("priceTiers", JSON.stringify(priceTiers));
+    formData.append("samples", JSON.stringify(colorSample));
+
     try {
       await createProduct(formData);
     } catch (error) {
@@ -219,6 +242,55 @@ const AddProducts = ({
             <Label>Patterns</Label>
             {renderCheckboxGroup(patterns, "patternIds")}
           </div>
+        </div>
+
+        <div className="col-span-2 mt-6">
+          <Label required={true}>Warna Sampel & Stock</Label>
+          
+          {colorSample.map((variant, index) => (
+            <div key={index} className="grid grid-cols-4 gap-4 mb-4 items-center">    
+              <div className="col-span-1">
+                {/* Input nama warna */}
+                <Input
+                  type="text"
+                  placeholder="Nama Warna"
+                  value={variant.color_sample}
+                  onChange={(e) => updateSample(index, "color_sample", e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="col-span-1">
+                {/* Input stock */}
+                <Input
+                  type="number"
+                  placeholder="Stock"
+                  value={variant.stock_sample}
+                  onChange={(e) => updateSample(index, "stock_sample", e.target.value)}
+                  min="0"
+                  required
+                />
+              </div>
+              
+              <div className="col-span-1">
+                {/* Tombol hapus - hanya muncul jika lebih dari 1 varian */}
+                {colorSample.length > 1 && (
+                  <Button
+                    type="button"
+                    onClick={() => removeSample(index)}
+                    variant="destructive"
+                    className="w-full"
+                  >
+                    Delete
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+          
+          <Button type="button" onClick={addSample} className="mt-2">
+            + Add
+          </Button>
         </div>
 
         <div className="col-span-2 mt-6">

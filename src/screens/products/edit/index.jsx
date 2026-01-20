@@ -17,6 +17,31 @@ const EditProducts = ({
   product,
 }) => {
 
+  const [samples, setSamples] = useState(
+    product.samples?.map((stock) => ({
+      id: stock.productId,
+      color_sample: stock.color_sample,    
+      stock_sample: stock.stock_sample,
+    })) ?? [] 
+  );
+  
+  const addSample = () => {
+    setSamples([...samples, { color_sample: "", stock_sample: 0 }]);
+  };
+
+  const removeSample = (index) => {
+    if (samples.length <= 1) return;
+    const newSamples = [...samples];
+    newSamples.splice(index, 1);
+    setSamples(newSamples);
+  };
+
+  const updateSample = (index, field, value) => {
+    const newSamples = [...samples];
+    newSamples[index][field] = value;
+    setSamples(newSamples);
+  };
+
   // ✅ PERBAIKAN: Gunakan colorStocks (bukan colorVariants)
   const [colorStocks, setColorVariants] = useState(
     product.colorStocks?.map((stock) => ({
@@ -26,7 +51,6 @@ const EditProducts = ({
     })) ?? [] 
   );
 
-  // ✅ HANDLER FUNCTIONS
   const addColorVariant = () => {
     setColorVariants([...colorStocks, { color: "", stock: 0 }]);
   };
@@ -95,6 +119,7 @@ const EditProducts = ({
     const formData = new FormData(e.target);
     formData.append("priceTiers", JSON.stringify(priceTiers));
     formData.append("colorStocks", JSON.stringify(colorStocks));
+    formData.append("samples", JSON.stringify(samples));
 
     try {
       await editProduct(formData, product.id, product.image);
@@ -241,6 +266,60 @@ const EditProducts = ({
             <Label>Patterns</Label>
             {renderCheckboxGroup(patterns, "patternIds", product.patterns)}
           </div>
+        </div>
+
+        <div className="col-span-2 mt-6">
+          <Label required={true}>Color Sampel  & Stock</Label>
+          
+          {/* Tampilkan total stock */}
+          <div className="mb-3 p-2 bg-purple-50 rounded">
+            <span className="font-medium">Total Stock: </span>
+            <span className="text-lg font-bold">
+              {samples.reduce((total, variant) => total + (parseInt(variant.stock_sample) || 0), 0)}
+            </span>
+          </div>
+          
+          {samples.map((variant, index) => (
+            <div key={index} className="grid grid-cols-4 gap-4 mb-4 items-center">
+              <div className="col-span-2">
+                <Input
+                  type="text"
+                  placeholder="Nama Warna"
+                  value={variant.color_sample}
+                  onChange={(e) => updateSample(index, "color_sample", e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="col-span-1">
+                <Input
+                  type="number"
+                  placeholder="Stock"
+                  value={variant.stock_sample}
+                  onChange={(e) => updateSample(index, "stock_sample", e.target.value)}
+                  min="0"
+                  required
+                />
+              </div>
+              
+              <div className="col-span-1">
+                {samples.length > 1 && (
+                  <Button
+                    type="button"
+                    onClick={() => removeSample(index)}
+                    variant="destructive"
+                    className="w-full"
+                  >
+                    Delete
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+          
+          <Button type="button" onClick={addSample} className="mt-2">
+            + Add 
+          </Button>
         </div>
 
         <div className="col-span-2 mt-6">
