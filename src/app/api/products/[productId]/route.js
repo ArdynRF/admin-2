@@ -23,6 +23,7 @@ export async function GET(request, context) {
         patterns: true,
         priceTiers: true,
         colorStocks: true,
+        sampleProducts: true,
       },
     });
 
