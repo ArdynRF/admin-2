@@ -96,6 +96,17 @@ model ProductColorStock {
   @@unique([productId, color]) // supaya tidak ada duplikat warna untuk satu produk
 }
 
+model ProductSample {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  color_sample     String
+  stock_sample    Int
+
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([productId, color_sample]) // supaya tidak ada duplikat warna untuk satu produk
+}
+
 model User {
   id            Int                 @id @default(autoincrement())
   name          String

@@ -145,6 +145,13 @@ async function main() {
           { color: "Hijau", stock: 30 },
         ],
       },
+      sample: {
+        create: [
+          {color_sample: "Merah", stock_sample: 10},
+          {color_sample: "Biru", stock_sample: 10},
+          {color_sample: "Hijau", stock_sample: 10},
+        ],
+      },
     },
   });
 
@@ -184,6 +191,13 @@ async function main() {
           { color: "Emas", stock: 50 },
           { color: "Perak", stock: 50 },
           { color: "Putih", stock: 100 },
+        ],
+      },
+      sample: {
+        create: [
+          {color_sample: "Emas", stock_sample: 10},
+          {color_sample: "Perak", stock_sample: 10},
+          {color_sample: "Putih", stock_sample: 10},
         ],
       },
     },
