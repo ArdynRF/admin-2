@@ -17,13 +17,8 @@ const EditProducts = ({
   product,
 }) => {
 
-<<<<<<< HEAD
   const [sampleProducts, setSamples] = useState(
     product.sampleProducts?.map((stock) => ({
-=======
-  const [samples, setSamples] = useState(
-    product.samples?.map((stock) => ({
->>>>>>> 26e33ff (add jeung edit)
       id: stock.productId,
       color_sample: stock.color_sample,    
       stock_sample: stock.stock_sample,
@@ -31,31 +26,18 @@ const EditProducts = ({
   );
   
   const addSample = () => {
-<<<<<<< HEAD
     setSamples([...sampleProducts, { color_sample: "", stock_sample: 0 }]);
   };
 
   const removeSample = (index) => {
     if (sampleProducts.length <= 1) return;
     const newSamples = [...sampleProducts];
-=======
-    setSamples([...samples, { color_sample: "", stock_sample: 0 }]);
-  };
-
-  const removeSample = (index) => {
-    if (samples.length <= 1) return;
-    const newSamples = [...samples];
->>>>>>> 26e33ff (add jeung edit)
     newSamples.splice(index, 1);
     setSamples(newSamples);
   };
 
   const updateSample = (index, field, value) => {
-<<<<<<< HEAD
     const newSamples = [...sampleProducts];
-=======
-    const newSamples = [...samples];
->>>>>>> 26e33ff (add jeung edit)
     newSamples[index][field] = value;
     setSamples(newSamples);
   };
@@ -137,11 +119,7 @@ const EditProducts = ({
     const formData = new FormData(e.target);
     formData.append("priceTiers", JSON.stringify(priceTiers));
     formData.append("colorStocks", JSON.stringify(colorStocks));
-<<<<<<< HEAD
     formData.append("sampleProducts", JSON.stringify(sampleProducts));
-=======
-    formData.append("samples", JSON.stringify(samples));
->>>>>>> 26e33ff (add jeung edit)
 
     try {
       await editProduct(formData, product.id, product.image);
@@ -297,19 +275,11 @@ const EditProducts = ({
           <div className="mb-3 p-2 bg-purple-50 rounded">
             <span className="font-medium">Total Stock: </span>
             <span className="text-lg font-bold">
-<<<<<<< HEAD
               {sampleProducts.reduce((total, variant) => total + (parseInt(variant.stock_sample) || 0), 0)}
             </span>
           </div>
           
           {sampleProducts.map((variant, index) => (
-=======
-              {samples.reduce((total, variant) => total + (parseInt(variant.stock_sample) || 0), 0)}
-            </span>
-          </div>
-          
-          {samples.map((variant, index) => (
->>>>>>> 26e33ff (add jeung edit)
             <div key={index} className="grid grid-cols-4 gap-4 mb-4 items-center">
               <div className="col-span-2">
                 <Input
@@ -333,11 +303,7 @@ const EditProducts = ({
               </div>
               
               <div className="col-span-1">
-<<<<<<< HEAD
                 {sampleProducts.length > 1 && (
-=======
-                {samples.length > 1 && (
->>>>>>> 26e33ff (add jeung edit)
                   <Button
                     type="button"
                     onClick={() => removeSample(index)}
