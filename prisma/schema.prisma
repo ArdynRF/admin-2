@@ -127,10 +127,8 @@ model User {
 model BillingAddress {
   id           Int      @id @default(autoincrement())
   user_id      Int
-  label        String?
-  address_line String?
-  city         String?
-  postal_code  String?
+  NIK          String?
+  NPWP         String?
   is_default   Boolean  @default(false)
 
   // Relasi
