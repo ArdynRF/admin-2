@@ -17,8 +17,8 @@ const EditProducts = ({
   product,
 }) => {
 
-  const [samples, setSamples] = useState(
-    product.samples?.map((stock) => ({
+  const [sampleProducts, setSamples] = useState(
+    product.sampleProducts?.map((stock) => ({
       id: stock.productId,
       color_sample: stock.color_sample,    
       stock_sample: stock.stock_sample,
@@ -26,18 +26,18 @@ const EditProducts = ({
   );
   
   const addSample = () => {
-    setSamples([...samples, { color_sample: "", stock_sample: 0 }]);
+    setSamples([...sampleProducts, { color_sample: "", stock_sample: 0 }]);
   };
 
   const removeSample = (index) => {
-    if (samples.length <= 1) return;
-    const newSamples = [...samples];
+    if (sampleProducts.length <= 1) return;
+    const newSamples = [...sampleProducts];
     newSamples.splice(index, 1);
     setSamples(newSamples);
   };
 
   const updateSample = (index, field, value) => {
-    const newSamples = [...samples];
+    const newSamples = [...sampleProducts];
     newSamples[index][field] = value;
     setSamples(newSamples);
   };
@@ -119,7 +119,7 @@ const EditProducts = ({
     const formData = new FormData(e.target);
     formData.append("priceTiers", JSON.stringify(priceTiers));
     formData.append("colorStocks", JSON.stringify(colorStocks));
-    formData.append("samples", JSON.stringify(samples));
+    formData.append("sampleProducts", JSON.stringify(sampleProducts));
 
     try {
       await editProduct(formData, product.id, product.image);
@@ -275,11 +275,11 @@ const EditProducts = ({
           <div className="mb-3 p-2 bg-purple-50 rounded">
             <span className="font-medium">Total Stock: </span>
             <span className="text-lg font-bold">
-              {samples.reduce((total, variant) => total + (parseInt(variant.stock_sample) || 0), 0)}
+              {sampleProducts.reduce((total, variant) => total + (parseInt(variant.stock_sample) || 0), 0)}
             </span>
           </div>
           
-          {samples.map((variant, index) => (
+          {sampleProducts.map((variant, index) => (
             <div key={index} className="grid grid-cols-4 gap-4 mb-4 items-center">
               <div className="col-span-2">
                 <Input
@@ -303,7 +303,7 @@ const EditProducts = ({
               </div>
               
               <div className="col-span-1">
-                {samples.length > 1 && (
+                {sampleProducts.length > 1 && (
                   <Button
                     type="button"
                     onClick={() => removeSample(index)}

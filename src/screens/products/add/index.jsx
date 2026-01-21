@@ -99,7 +99,7 @@ const AddProducts = ({
     const formData = new FormData(e.target);
     formData.append("colorVariants", JSON.stringify(colorVariants));
     formData.append("priceTiers", JSON.stringify(priceTiers));
-    formData.append("samples", JSON.stringify(colorSample));
+    formData.append("sampleProducts", JSON.stringify(sampleProducts));
 
     try {
       await createProduct(formData);
