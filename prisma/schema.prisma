@@ -175,11 +175,11 @@ model User {
 }
 
 model BillingAddress {
-  id         Int     @id @default(autoincrement())
-  user_id    Int
-  NIK        String?
-  NPWP       String?
-  is_default Boolean @default(false)
+  id           Int      @id @default(autoincrement())
+  user_id      Int
+  NIK          String?
+  NPWP         String?
+  is_default   Boolean  @default(false)
 
   // Relasi
   user User @relation(fields: [user_id], references: [id])
