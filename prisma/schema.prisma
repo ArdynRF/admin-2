@@ -175,11 +175,11 @@ model User {
 }
 
 model BillingAddress {
-  id           Int      @id @default(autoincrement())
-  user_id      Int
-  NIK          String?
-  NPWP         String?
-  is_default   Boolean  @default(false)
+  id         Int     @id @default(autoincrement())
+  user_id    Int
+  NIK        String?
+  NPWP       String?
+  is_default Boolean @default(false)
 
   // Relasi
   user User @relation(fields: [user_id], references: [id])
@@ -310,10 +310,14 @@ model Order {
   cancelledAt       DateTime?
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   updatedAt         DateTime  @updatedAt // Tambahkan updatedAt
 =======
   updatedAt         DateTime  @updatedAt 
 >>>>>>> 51cf116929788fe1970d10fe64f8211280332a3f
+=======
+  updatedAt         DateTime  @updatedAt // Tambahkan updatedAt
+>>>>>>> 6043781 (profile)
 =======
   updatedAt         DateTime  @updatedAt // Tambahkan updatedAt
 >>>>>>> 6043781 (profile)
@@ -331,6 +335,9 @@ model Order {
 model OrderItem {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6043781 (profile)
 =======
 >>>>>>> 6043781 (profile)
   id          Int     @id @default(autoincrement())
@@ -341,6 +348,7 @@ model OrderItem {
   unitPrice   Float
   totalPrice  Float
   color       String?
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
   id            Int     @id @default(autoincrement())
@@ -353,6 +361,8 @@ model OrderItem {
   color         String?
   productStatus String?
 >>>>>>> 51cf116929788fe1970d10fe64f8211280332a3f
+=======
+>>>>>>> 6043781 (profile)
 =======
 >>>>>>> 6043781 (profile)
 
