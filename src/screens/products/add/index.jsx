@@ -15,25 +15,25 @@ const AddProducts = ({
   patterns,
 }) => {
 
-  const [colorSample, setColorSample] = useState([
+  const [sampleProducts, setSampleProducts] = useState([
     { color_sample: "", stock_sample: 0 }
   ]);
 
   const addSample = () => {
-    setColorSample([...colorSample, { color_sample: "", stock_sample: 0 }]);
+    setSampleProducts([...sampleProducts, { color_sample: "", stock_sample: 0 }]);
   };
 
   const removeSample = (index) => {
-    if (colorSample.length <= 1) return;
-    const newSamples = [...colorSample];
+    if (sampleProducts.length <= 1) return;
+    const newSamples = [...sampleProducts];
     newSamples.splice(index, 1);
-    setColorSample(newSamples);
+    setSampleProducts(newSamples);
   };
 
   const updateSample = (index, field, value) => {
-    const newSamples = [...colorSample];
+    const newSamples = [...sampleProducts];
     newSamples[index][field] = value;
-    setColorSample(newSamples);
+    setSampleProducts(newSamples);
   };
 
   // Warna dan stock
@@ -247,7 +247,7 @@ const AddProducts = ({
         <div className="col-span-2 mt-6">
           <Label required={true}>Warna Sampel & Stock</Label>
           
-          {colorSample.map((variant, index) => (
+          {sampleProducts.map((variant, index) => (
             <div key={index} className="grid grid-cols-4 gap-4 mb-4 items-center">    
               <div className="col-span-1">
                 {/* Input nama warna */}
@@ -274,7 +274,7 @@ const AddProducts = ({
               
               <div className="col-span-1">
                 {/* Tombol hapus - hanya muncul jika lebih dari 1 varian */}
-                {colorSample.length > 1 && (
+                {sampleProducts.length > 1 && (
                   <Button
                     type="button"
                     onClick={() => removeSample(index)}

@@ -1,80 +1,108 @@
 import { NextResponse } from 'next/server';
-import { getUserProfile, updateUserProfile } from '@/actions/profileAction';
+import { getCustomerData } from '@/actions/authActions';
+import { 
+  getUserProfileClient, 
+  updateUserProfileClient,
+  updatePasswordClient,
+  createShippingAddress,
+  updateShippingAddress,
+  deleteShippingAddress,
+  createBillingAddress,
+  updateBillingAddress,
+  deleteBillingAddress
+} from '@/actions/profileAction';
 
+// GET - Get user profile
 export async function GET(request) {
   try {
-    console.log('Profile API GET called');
-    
     const { searchParams } = new URL(request.url);
+    console.log("Request URL:", request.url);
+    console.log("Search Params:", searchParams);
     const userId = searchParams.get('userId');
-    
-    console.log('User ID from params:', userId);
-    
+
     if (!userId) {
-      console.error('User ID is missing');
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
+      // If no userId provided, get from session
+      const customer = await getCustomerData();
+      if (!customer || !customer.data) {
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        );
+      }
+      userId = customer.data.id;
     }
-    
-    console.log('Fetching profile for user ID:', userId);
-    const userProfile = await getUserProfile(userId);
-    
-    console.log('Profile data retrieved:', userProfile);
-    return NextResponse.json(userProfile);
+    console.log("debug userId:", userId);
+
+    const profile = await getUserProfileClient(Number(userId));
+    console.log("Fetched profile:", profile);
+    return NextResponse.json({
+      message: 'Profile fetched successfully',
+      success: true,
+      data: profile
+    });
   } catch (error) {
-    console.error('Error in profile GET API:', error);
+    console.error('GET Profile error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch profile', details: error.message },
+      { error: error.message || 'Failed to fetch profile' },
       { status: 500 }
     );
   }
 }
 
+// PUT - Update user profile
 export async function PUT(request) {
   try {
-    console.log('Profile API PUT called');
-    
-    const body = await request.json();
-    const { userId, ...data } = body;
-    
-    console.log('User ID:', userId);
-    console.log('Update data:', data);
-    
-    if (!userId) {
-      console.error('User ID is missing in PUT request');
+    const customer = await getCustomerData();
+    if (!customer || !customer.data) {
       return NextResponse.json(
-        { error: 'User ID is required' },
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const userId = customer.data.id;
+    const body = await request.json();
+    
+    const result = await updateUserProfileClient(userId, body);
+    
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('PUT Profile error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to update profile' },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH - Update password
+export async function PATCH(request) {
+  try {
+    const customer = await getCustomerData();
+    if (!customer || !customer.data) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const userId = customer.data.id;
+    const { currentPassword, newPassword } = await request.json();
+    
+    if (!currentPassword || !newPassword) {
+      return NextResponse.json(
+        { error: 'Current password and new password are required' },
         { status: 400 }
       );
     }
+
+    const result = await updatePasswordClient(userId, currentPassword, newPassword);
     
-    // Create FormData object from the data
-    const formData = new FormData();
-    formData.append('userId', userId);
-    formData.append('name', data.name || '');
-    formData.append('email', data.email || '');
-    formData.append('phone', data.phone || '');
-    formData.append('shippingAddresses', JSON.stringify(data.shippingAddresses || []));
-    formData.append('billingAddresses', JSON.stringify(data.billingAddresses || []));
-    
-    console.log('Calling server action updateUserProfileServer...');
-    await updateUserProfile(formData, userId);
-    
-    console.log('Profile updated successfully');
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Profile updated successfully' 
-    });
+    return NextResponse.json(result);
   } catch (error) {
-    console.error('Error in profile PUT API:', error);
+    console.error('PATCH Password error:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to update profile', 
-        details: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      },
+      { error: error.message || 'Failed to update password' },
       { status: 500 }
     );
   }
