@@ -168,6 +168,7 @@ CREATE TABLE "Order" (
     "estimatedDelivery" DATETIME,
     "deliveredAt" DATETIME,
     "cancelledAt" DATETIME,
+    "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
