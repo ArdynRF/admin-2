@@ -25,18 +25,14 @@ async function main() {
       billingAddresses: {
         create: [
           {
-            label: "Rumah",
-            address_line: "Jl. Merdeka No. 123",
-            city: "Jakarta",
-            postal_code: "10110",
-            is_default: true,
+            NIK: "3174061503900324",
+            NPWP: "09.123.456.7-890.111",
+            is_default: false,
           },
           {
-            label: "Kantor",
-            address_line: "Jl. Sudirman No. 456",
-            city: "Jakarta",
-            postal_code: "10220",
-            is_default: false,
+            NIK: "3174061503900002",
+            NPWP: "09.123.456.7-890.000",
+            is_default: true,
           },
         ],
       },
@@ -118,10 +114,10 @@ async function main() {
       currentStock: 100,
       material: "100% Katun",
       charateristic: "Breathable, Soft",
-      sample_price: '50000',
-      moq: '10',
-      weight: '200',
-      width: '115',
+      sample_price: "50000",
+      moq: "10",
+      weight: "200",
+      width: "115",
       priceTiers: {
         create: [
           { minQty: 1, maxQty: 10, unitPrice: 140000 },
@@ -147,9 +143,9 @@ async function main() {
       },
       sampleProducts: {
         create: [
-          {color_sample: "Merah", stock_sample: 10},
-          {color_sample: "Biru", stock_sample: 10},
-          {color_sample: "Hijau", stock_sample: 10},
+          { color_sample: "Merah", stock_sample: 10 },
+          { color_sample: "Biru", stock_sample: 10 },
+          { color_sample: "Hijau", stock_sample: 10 },
         ],
       },
     },
@@ -166,10 +162,10 @@ async function main() {
       currentStock: 200,
       material: "100% Sutra",
       charateristic: "Shiny, Strong",
-      sample_price: '25000',
-      moq: '5',
-      weight: '50',
-      width: '10',
+      sample_price: "25000",
+      moq: "5",
+      weight: "50",
+      width: "10",
       priceTiers: {
         create: [
           { minQty: 1, maxQty: 20, unitPrice: 70000 },
@@ -195,9 +191,9 @@ async function main() {
       },
       sampleProducts: {
         create: [
-          {color_sample: "Emas", stock_sample: 10},
-          {color_sample: "Perak", stock_sample: 10},
-          {color_sample: "Putih", stock_sample: 10},
+          { color_sample: "Emas", stock_sample: 10 },
+          { color_sample: "Perak", stock_sample: 10 },
+          { color_sample: "Putih", stock_sample: 10 },
         ],
       },
     },
