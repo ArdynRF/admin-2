@@ -168,6 +168,7 @@ CREATE TABLE "Order" (
     "estimatedDelivery" DATETIME,
     "deliveredAt" DATETIME,
     "cancelledAt" DATETIME,
+    "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -181,6 +182,7 @@ CREATE TABLE "OrderItem" (
     "unitPrice" REAL NOT NULL,
     "totalPrice" REAL NOT NULL,
     "color" TEXT,
+    "productStatus" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "OrderItem_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "OrderItem_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
