@@ -105,20 +105,14 @@ export async function POST(request) {
           status: orderData.orderStatus || "processing",
           paymentStatus: orderData.paymentStatus || "down_payment_paid",
           paymentMethod: orderData.paymentMethod,
-
-          // Shipping info
           shippingAddress: orderData.address,
           shippingMethod: orderData.shippingMethod,
           shippingCost: parseFloat(orderData.shippingCost) || 0,
-
-          // Payment info
           subtotal: parseFloat(orderData.subtotal) || 0,
           tax: parseFloat(orderData.tax) || 0,
           total: parseFloat(orderData.total) || 0,
           downPayment: parseFloat(orderData.downPayment) || 0,
           remainingPayment: parseFloat(orderData.remainingPayment) || 0,
-
-          // Additional info
           orderDate: new Date(),
           estimatedDelivery: calculateEstimatedDelivery(
             orderData.shippingMethod
@@ -140,6 +134,11 @@ export async function POST(request) {
               unitPrice: parseFloat(item.unitPrice) || 0,
               totalPrice: parseFloat(item.totalPrice) || 0,
               color: item.color || null,
+              productStatus: item.isSampleOrder
+                ? "Sample Order"
+                : item.orderStatus === "pre_order"
+                  ? "Pre Order"
+                  : "Regular",
 
               // Product snapshot
               // productImage: item.productSnapshot?.image || "",
@@ -383,4 +382,3 @@ export async function GET(request) {
     );
   }
 }
-
