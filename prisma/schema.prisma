@@ -308,19 +308,7 @@ model Order {
   estimatedDelivery DateTime?
   deliveredAt       DateTime?
   cancelledAt       DateTime?
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
   updatedAt         DateTime  @updatedAt // Tambahkan updatedAt
-=======
-  updatedAt         DateTime  @updatedAt 
->>>>>>> 51cf116929788fe1970d10fe64f8211280332a3f
-=======
-  updatedAt         DateTime  @updatedAt // Tambahkan updatedAt
->>>>>>> 6043781 (profile)
-=======
-  updatedAt         DateTime  @updatedAt // Tambahkan updatedAt
->>>>>>> 6043781 (profile)
 
   // Relasi
   user User @relation(fields: [userId], references: [id])
@@ -333,13 +321,6 @@ model Order {
 }
 
 model OrderItem {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 6043781 (profile)
-=======
->>>>>>> 6043781 (profile)
   id          Int     @id @default(autoincrement())
   orderId     Int
   productId   Int
@@ -348,23 +329,6 @@ model OrderItem {
   unitPrice   Float
   totalPrice  Float
   color       String?
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  id            Int     @id @default(autoincrement())
-  orderId       Int
-  productId     Int
-  productName   String
-  quantity      Int
-  unitPrice     Float
-  totalPrice    Float
-  color         String?
-  productStatus String?
->>>>>>> 51cf116929788fe1970d10fe64f8211280332a3f
-=======
->>>>>>> 6043781 (profile)
-=======
->>>>>>> 6043781 (profile)
 
   // Relasi
   order   Order    @relation(fields: [orderId], references: [id])

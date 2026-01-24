@@ -13,8 +13,6 @@ import {
   deleteBillingAddress,
 } from "@/actions/profileAction";
 
-// GET - Get user profile
-// GET - Get user profile
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
