@@ -6,7 +6,6 @@ import bcrypt from "bcryptjs";
 
 // Get user profile
 export async function getUserProfileClient(userId) {
-  console.log("debug 2 userId:", userId);
   try {
     const user = await db.User.findUnique({
       where: { id: parseInt(userId) },
@@ -15,7 +14,6 @@ export async function getUserProfileClient(userId) {
         billingAddresses: true,
       }
     });
-    console.log("debug user profile:", user);
 
     if (!user) {
       throw new Error("User not found");
