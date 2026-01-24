@@ -106,6 +106,7 @@ export async function POST(request) {
           paymentStatus: orderData.paymentStatus || "down_payment_paid",
           paymentMethod: orderData.paymentMethod,
           shippingAddress: orderData.address,
+          billingAddress: orderData.billing || null,
           shippingMethod: orderData.shippingMethod,
           shippingCost: parseFloat(orderData.shippingCost) || 0,
           subtotal: parseFloat(orderData.subtotal) || 0,
