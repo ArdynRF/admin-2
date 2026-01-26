@@ -15,19 +15,25 @@ const AddProducts = ({
   styles,
   patterns,
 }) => {
+<<<<<<< HEAD
   const [colorSample, setColorSample] = useState([
     { color_sample: "", stock_sample: 0 },
+=======
+
+  const [sampleProducts, setSampleProducts] = useState([
+    { color_sample: "", stock_sample: 0 }
+>>>>>>> b1d6614105b3821abc39010ad01ea4219f382831
   ]);
 
   const addSample = () => {
-    setColorSample([...colorSample, { color_sample: "", stock_sample: 0 }]);
+    setSampleProducts([...sampleProducts, { color_sample: "", stock_sample: 0 }]);
   };
 
   const removeSample = (index) => {
-    if (colorSample.length <= 1) return;
-    const newSamples = [...colorSample];
+    if (sampleProducts.length <= 1) return;
+    const newSamples = [...sampleProducts];
     newSamples.splice(index, 1);
-    setColorSample(newSamples);
+    setSampleProducts(newSamples);
   };
 
   const removeTier = (index) => {
@@ -38,9 +44,9 @@ const AddProducts = ({
   };
 
   const updateSample = (index, field, value) => {
-    const newSamples = [...colorSample];
+    const newSamples = [...sampleProducts];
     newSamples[index][field] = value;
-    setColorSample(newSamples);
+    setSampleProducts(newSamples);
   };
 
   const [colorVariants, setColorVariants] = useState([
@@ -112,7 +118,7 @@ const AddProducts = ({
     const formData = new FormData(e.target);
     formData.append("colorVariants", JSON.stringify(colorVariants));
     formData.append("priceTiers", JSON.stringify(priceTiers));
-    formData.append("samples", JSON.stringify(colorSample));
+    formData.append("sampleProducts", JSON.stringify(sampleProducts));
 
     try {
       await createProduct(formData);
@@ -673,6 +679,7 @@ const AddProducts = ({
               </div>
             ))}
           </div>
+<<<<<<< HEAD
           {/* Color Variants Section with Blue Accent */}
           <div className="mb-8 p-6 border-2 border-blue-200 rounded-xl bg-gradient-to-br from-blue-50 to-white">
             <div className="flex justify-between items-center mb-6">
@@ -683,6 +690,54 @@ const AddProducts = ({
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+=======
+          <div>
+            <Label>Styles</Label>
+            {renderCheckboxGroup(styles, "styleIds")}
+          </div>
+          <div>
+            <Label>Patterns</Label>
+            {renderCheckboxGroup(patterns, "patternIds")}
+          </div>
+        </div>
+
+        <div className="col-span-2 mt-6">
+          <Label required={true}>Warna Sampel & Stock</Label>
+          
+          {sampleProducts.map((variant, index) => (
+            <div key={index} className="grid grid-cols-4 gap-4 mb-4 items-center">    
+              <div className="col-span-1">
+                {/* Input nama warna */}
+                <Input
+                  type="text"
+                  placeholder="Nama Warna"
+                  value={variant.color_sample}
+                  onChange={(e) => updateSample(index, "color_sample", e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="col-span-1">
+                {/* Input stock */}
+                <Input
+                  type="number"
+                  placeholder="Stock"
+                  value={variant.stock_sample}
+                  onChange={(e) => updateSample(index, "stock_sample", e.target.value)}
+                  min="0"
+                  required
+                />
+              </div>
+              
+              <div className="col-span-1">
+                {/* Tombol hapus - hanya muncul jika lebih dari 1 varian */}
+                {sampleProducts.length > 1 && (
+                  <Button
+                    type="button"
+                    onClick={() => removeSample(index)}
+                    variant="destructive"
+                    className="w-full"
+>>>>>>> b1d6614105b3821abc39010ad01ea4219f382831
                   >
                     <path
                       strokeLinecap="round"

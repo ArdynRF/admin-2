@@ -41,6 +41,7 @@ export const createProduct = async (formData) => {
   const width = formData.get("width");
 
   const colorVariants = JSON.parse(formData.get("colorVariants") || "[]");
+  const sampleProducts = JSON.parse(formData.get("sampleProducts") || "[]");
 
   const technicIds = formData.getAll("technicIds").map((id) => parseInt(id));
   const styleIds = formData.getAll("styleIds").map((id) => parseInt(id));
@@ -75,6 +76,12 @@ export const createProduct = async (formData) => {
       isCustomization,
       weight,
       width,
+      sampleProducts: sampleProducts.length > 0 ? {
+        create: sampleProducts.map((variant) => ({
+          color_sample: variant.color_sample,
+          stock_sample: parseInt(variant.stock_sample) || 0,
+        })),
+      } : undefined,
       colorStocks: colorVariants.length > 0 ? {
         create: colorVariants.map((variant) => ({
           color: variant.colorName,
@@ -120,6 +127,7 @@ export async function getProductById(productId) {
       styles: true,
       patterns: true,
       colorStocks: true,
+      sampleProducts: true,
     },
   });
 }
@@ -168,6 +176,7 @@ export async function editProduct(formData, productId, existingImage) {
   const width = formData.get("width");
 
   const colorStocks = JSON.parse(formData.get("colorStocks") || "[]");
+  const sampleProducts = JSON.parse(formData.get("sampleProducts") || "[]");
 
   const technicIds = formData.getAll("technicIds").map((id) => parseInt(id));
   const styleIds = formData.getAll("styleIds").map((id) => parseInt(id));
@@ -200,6 +209,13 @@ export async function editProduct(formData, productId, existingImage) {
       isCustomization,
       weight,
       width,
+      sampleProducts: {
+        deleteMany: {},
+        create: sampleProducts.map((variant) => ({
+          color_sample: variant.color_sample,
+          stock_sample: parseInt(variant.stock_sample) || 0,
+        })),
+      },
       colorStocks: {
         deleteMany: {},
         create: colorStocks.map((variant) => ({

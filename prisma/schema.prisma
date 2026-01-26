@@ -3,7 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  //output   = "../src/generated/prisma"
+  // output = "../src/generated/prisma"
 }
 
 datasource db {
@@ -11,179 +11,233 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model AdminUser{
-  id Int @id @default(autoincrement())
+model AdminUser {
+  id       Int    @id @default(autoincrement())
   userType String
   userName String @unique
   password String
 }
 
-model ProductType{
-  id       Int     @id @default(autoincrement())
-  name     String  @unique
+model ProductType {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
   products Product[]
 }
 
 model Product {
-  id            Int                @id @default(autoincrement())
-  id_barang String? @unique
-  name          String
-  description   String
-  mrp           Float
-  image         String
-  productTypeId Int
-  currentStock  Int                @default(0)
-  material      String?
-  charateristic String?
-  sample_price  String?
-  moq           String?
-  
-  isActive      Boolean            @default(true)
-  isCustomization Boolean          @default(true)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  weight        String?
-  width         String?
-  
+  id               Int     @id @default(autoincrement())
+  id_barang        String? @unique
+  name             String
+  description      String
+  mrp              Float
+  image            String
+  productTypeId    Int
+  currentStock     Int     @default(0)
+  material         String?
+  charateristic    String?
+  sample_price     String?
+  moq              String?
+  isActive         Boolean @default(true)
+  isCustomization  Boolean @default(true)
+  weight           String?
+  width            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  // Relasi
-  productType   ProductType        @relation(fields: [productTypeId], references: [id])
-  priceTiers    ProductPricingTier[]
-    technics      Technic[]          @relation("ProductTechnics")
-  styles        Style[]            @relation("ProductStyles")
-  patterns      Pattern[]          @relation("ProductPatterns")
-  colorStocks ProductColorStock[] // menampung banyak warna dan stock
+  // Relations
+  productType    ProductType          @relation(fields: [productTypeId], references: [id])
+  priceTiers     ProductPricingTier[]
+  technics       Technic[]            @relation("ProductTechnics")
+  styles         Style[]              @relation("ProductStyles")
+  patterns       Pattern[]            @relation("ProductPatterns")
+  colorStocks    ProductColorStock[]
   sampleProducts ProductSample[]
-  carts Cart[]
-  negotiations Negotiation[]
+  carts          Cart[]
+  negotiations   Negotiation[]
+  orderItems     OrderItem[]
 }
 
 model ProductPricingTier {
-  id        Int     @id @default(autoincrement())
+  id        Int   @id @default(autoincrement())
   productId Int
   minQty    Int
   maxQty    Int?
   unitPrice Float
 
-  product   Product @relation(fields: [productId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 }
 
 model Technic {
-  id       Int      @id @default(autoincrement())
-  name     String   @unique
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
   products Product[] @relation("ProductTechnics")
 }
 
 model Style {
-  id       Int      @id @default(autoincrement())
-  name     String   @unique
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
   products Product[] @relation("ProductStyles")
 }
 
 model Pattern {
-  id       Int      @id @default(autoincrement())
-  name     String   @unique
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
   products Product[] @relation("ProductPatterns")
 }
 
 model ProductColorStock {
-  id        Int     @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   productId Int
   color     String
   stock     Int
 
-  product   Product @relation(fields: [productId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 
-  @@unique([productId, color]) // supaya tidak ada duplikat warna untuk satu produk
+  @@unique([productId, color])
 }
 
 model ProductSample {
-  id        Int     @id @default(autoincrement())
-  productId Int
-  color_sample     String
-  stock_sample    Int
+  id           Int    @id @default(autoincrement())
+  productId    Int
+  color_sample String
+  stock_sample Int
 
-  product   Product @relation(fields: [productId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 
-  @@unique([productId, color_sample]) // supaya tidak ada duplikat warna untuk satu produk
+  @@unique([productId, color_sample])
 }
 
 model User {
-  id            Int                 @id @default(autoincrement())
-  name          String
-  email         String              @unique
-  password      String
-  phone_number  String?
-  tax_number    String?
-  created_at    DateTime            @default(now())
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  password     String
+  phone_number String?
+  tax_number   String?
+  created_at   DateTime @default(now())
 
-  // Relasi
+  // Relations
   billingAddresses  BillingAddress[]
   shippingAddresses ShippingAddress[]
-  carts Cart[]
-  negotiations Negotiation[]
+  carts             Cart[]
+  negotiations      Negotiation[]
+  orders            Order[]
 }
 
 model BillingAddress {
-  id           Int      @id @default(autoincrement())
-  user_id      Int
-  label        String?
-  address_line String?
-  city         String?
-  postal_code  String?
-  is_default   Boolean  @default(false)
+  id         Int     @id @default(autoincrement())
+  user_id    Int
+  NIK        String?
+  NPWP       String?
+  is_default Boolean @default(false)
 
-  // Relasi
   user User @relation(fields: [user_id], references: [id])
 }
 
 model ShippingAddress {
-  id           Int      @id @default(autoincrement())
+  id           Int     @id @default(autoincrement())
   user_id      Int
   label        String?
   address_line String?
   city         String?
   postal_code  String?
-  is_default   Boolean  @default(false)
+  is_default   Boolean @default(false)
 
-  // Relasi
   user User @relation(fields: [user_id], references: [id])
 }
 
 model Cart {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  productId Int
-  quantity  Int      
-  addedAt   DateTime @default(now())
-  priceTotal Int @default(0)
-  color String?
-  status String?
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  productId  Int
+  quantity   Int
+  addedAt    DateTime @default(now())
+  priceTotal Int      @default(0)
+  color      String?
+  status     String?
 
- 
   user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 
-  @@unique([userId, productId]) 
+  @@unique([userId, productId])
 }
 
 model Negotiation {
-  id           Int      @id @default(autoincrement())
-  userId       Int      
-  productId    Int      
-  quantity     Int      
-  offeredPrice Float    
-  sellerPrice  Float?   
-  finalPrice   Float?   
-  color        String?  
-  notes        String?  
-  status       String   @default("pending") 
-  createdAt    DateTime @default(now())     
-  updatedAt    DateTime @updatedAt          
-  expiresAt    DateTime?                    
-  respondedAt  DateTime?                    
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  productId    Int
+  quantity     Int
+  offeredPrice Float
+  sellerPrice  Float?
+  finalPrice   Float?
+  color        String?
+  notes        String?
+  status       String    @default("pending")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  expiresAt    DateTime?
+  respondedAt  DateTime?
 
-  // Relasi
   user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id                Int      @id @default(autoincrement())
+  orderNumber       String   @unique
+  userId            Int
+  status            String   @default("processing")
+  paymentStatus     String   @default("pending")
+  paymentMethod     String
+
+  // Shipping info
+  shippingAddress   Json
+  shippingMethod    Json
+  shippingCost      Float
+
+  // Billing info
+  billingAddress Json
+
+  // Payment info
+  subtotal          Float
+  tax               Float
+  total             Float
+  downPayment       Float?
+  remainingPayment  Float?
+
+  // Items
+  items             OrderItem[]
+
+  // Timestamps
+  orderDate         DateTime  @default(now())
+  estimatedDelivery DateTime?
+  deliveredAt       DateTime?
+  cancelledAt       DateTime?
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([orderNumber])
+  @@index([status])
+}
+
+model OrderItem {
+  id          Int     @id @default(autoincrement())
+  orderId     Int
+  productId   Int
+  productName String
+  quantity    Int
+  unitPrice   Float
+  totalPrice  Float
+  color       String?
+  productStatus String
+  createdAt   DateTime @default(now())
+
+  order   Order    @relation(fields: [orderId], references: [id])
+  product Product? @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
 }
