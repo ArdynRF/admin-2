@@ -5,12 +5,20 @@ export default async function WithLayout({ children }) {
   const userData = await getUserData();
 
   return (
-    <div className="grid grid-cols-12">
-      <div className="col-span-2">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-12">
+      {/* Sidebar untuk desktop - col-span-3 berarti 3/12 = 25% */}
+      <div className="hidden lg:block lg:col-span-3 xl:col-span-2">
         <Sidebar userData={userData} />
       </div>
-      <div className="col-span-10 p-6 my-6 mr-8 border border-gray-300 rounded-xl shadow-lg">
-        {children}
+
+      {/* Mobile sidebar toggle area */}
+      <div className="lg:hidden">
+        {/* Mobile toggle button sudah ada di Sidebar component */}
+      </div>
+
+      {/* Main content - col-span-9 berarti 9/12 = 75% */}
+      <div className="lg:col-span-9 xl:col-span-10">
+        <div className="p-4 md:p-6 lg:p-8">{children}</div>
       </div>
     </div>
   );

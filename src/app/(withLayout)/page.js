@@ -1,6 +1,11 @@
+const { default: Home } = require("@/screens/home");
 
-export default function Home() {
+const homePage = () => {
   return (
-    <h1>This is the Admin Section.</h1>
+    <div>
+      <Home />
+    </div>
   );
-}
+};
+
+export default homePage;
