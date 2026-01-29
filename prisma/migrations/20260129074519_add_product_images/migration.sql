@@ -13,6 +13,16 @@ CREATE TABLE "ProductType" (
 );
 
 -- CreateTable
+CREATE TABLE "ProductImage" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "productId" INTEGER NOT NULL,
+    "url" TEXT NOT NULL,
+    "alt" TEXT,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    CONSTRAINT "ProductImage_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "Product" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "id_barang" TEXT,
@@ -159,6 +169,7 @@ CREATE TABLE "Order" (
     "shippingAddress" JSONB NOT NULL,
     "shippingMethod" JSONB NOT NULL,
     "shippingCost" REAL NOT NULL,
+    "billingAddress" JSONB NOT NULL,
     "subtotal" REAL NOT NULL,
     "tax" REAL NOT NULL,
     "total" REAL NOT NULL,
@@ -182,6 +193,7 @@ CREATE TABLE "OrderItem" (
     "unitPrice" REAL NOT NULL,
     "totalPrice" REAL NOT NULL,
     "color" TEXT,
+    "productStatus" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "OrderItem_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "OrderItem_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
@@ -216,6 +228,9 @@ CREATE UNIQUE INDEX "AdminUser_userName_key" ON "AdminUser"("userName");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ProductType_name_key" ON "ProductType"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProductImage_productId_url_key" ON "ProductImage"("productId", "url");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Product_id_barang_key" ON "Product"("id_barang");

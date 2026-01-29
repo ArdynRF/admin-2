@@ -1,15 +1,16 @@
+// File: /api/products/[productId]/route.js
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
 export async function GET(request, context) {
-  const params = await context.params; // ⬅️ PENTING: await dulu sebelum digunakan
+  const params = await context.params;
   const { productId } = params;
 
   const id = Number(productId);
   if (!id) {
     return NextResponse.json(
       { error: "Product ID is required and must be a number." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -24,13 +25,14 @@ export async function GET(request, context) {
         priceTiers: true,
         colorStocks: true,
         sampleProducts: true,
+        images: { orderBy: { order: "asc" } }, // TAMBAHKAN INI
       },
     });
 
     if (!product) {
       return NextResponse.json(
         { error: "Product not found." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -43,7 +45,7 @@ export async function GET(request, context) {
     console.error("Fetch product error:", error);
     return NextResponse.json(
       { error: "Internal Server Error", detail: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

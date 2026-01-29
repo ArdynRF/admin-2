@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import Label from "@/components/ui/Label";
@@ -42,8 +42,85 @@ const EditProducts = ({
     })) ?? [],
   );
 
+  // State untuk images
+  const [existingImages, setExistingImages] = useState(
+    product.images?.map((img) => ({
+      id: img.id,
+      url: img.url,
+      order: img.order || 0,
+      keep: true, // Untuk menandai apakah gambar akan dipertahankan
+      preview: img.url.startsWith("http") ? img.url : `/${img.url}`,
+    })) ?? [],
+  );
+
+  const [newImages, setNewImages] = useState([]); // Gambar baru yang akan diupload
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+
+  // Fungsi untuk menambah gambar baru
+  const addNewImage = (e) => {
+    const files = Array.from(e.target.files);
+    const newImageFiles = files.map((file) => ({
+      id: Date.now() + Math.random(), // ID sementara
+      file: file,
+      preview: URL.createObjectURL(file),
+      name: file.name,
+      isNew: true, // Tandai sebagai gambar baru
+    }));
+    setNewImages([...newImages, ...newImageFiles]);
+    e.target.value = ""; // Reset input file
+  };
+
+  // Fungsi untuk menghapus gambar baru
+  const removeNewImage = (index) => {
+    // Revoke object URL untuk mencegah memory leak
+    URL.revokeObjectURL(newImages[index].preview);
+
+    const updatedNewImages = [...newImages];
+    updatedNewImages.splice(index, 1);
+    setNewImages(updatedNewImages);
+  };
+
+  // Fungsi untuk toggle keep pada existing images
+  const toggleKeepImage = (index) => {
+    const updatedImages = [...existingImages];
+    updatedImages[index].keep = !updatedImages[index].keep;
+    setExistingImages(updatedImages);
+  };
+
+  // Fungsi untuk menghapus existing image dari list (soft delete)
+  const removeExistingImage = (index) => {
+    const updatedImages = [...existingImages];
+    updatedImages[index].keep = false;
+    setExistingImages(updatedImages);
+  };
+
+  // Fungsi untuk mengubah urutan gambar
+  const moveImageUp = (index) => {
+    if (index === 0) return;
+    const updatedImages = [...existingImages];
+    const temp = updatedImages[index];
+    updatedImages[index] = updatedImages[index - 1];
+    updatedImages[index - 1] = temp;
+    // Update order
+    updatedImages.forEach((img, idx) => {
+      img.order = idx;
+    });
+    setExistingImages(updatedImages);
+  };
+
+  const moveImageDown = (index) => {
+    if (index === existingImages.length - 1) return;
+    const updatedImages = [...existingImages];
+    const temp = updatedImages[index];
+    updatedImages[index] = updatedImages[index + 1];
+    updatedImages[index + 1] = temp;
+    // Update order
+    updatedImages.forEach((img, idx) => {
+      img.order = idx;
+    });
+    setExistingImages(updatedImages);
+  };
 
   const addSample = () => {
     setSamples([...sampleProducts, { color_sample: "", stock_sample: 0 }]);
@@ -129,6 +206,16 @@ const EditProducts = ({
     setSuccessMessage("");
 
     const formData = new FormData(e.target);
+
+    // Tambahkan existing images data
+    formData.append("existingAdditionalImages", JSON.stringify(existingImages));
+
+    // Tambahkan new images files
+    newImages.forEach((image) => {
+      formData.append("additionalImages", image.file);
+    });
+
+    // Tambahkan data lainnya
     formData.append("priceTiers", JSON.stringify(priceTiers));
     formData.append("colorStocks", JSON.stringify(colorStocks));
     formData.append("sampleProducts", JSON.stringify(sampleProducts));
@@ -142,6 +229,15 @@ const EditProducts = ({
       setIsSubmitting(false);
     }
   };
+
+  // Cleanup object URLs ketika component unmount
+  useEffect(() => {
+    return () => {
+      newImages.forEach((img) => {
+        if (img.preview) URL.revokeObjectURL(img.preview);
+      });
+    };
+  }, []);
 
   return (
     <div className="p-4 md:p-6">
@@ -332,13 +428,13 @@ const EditProducts = ({
               />
             </div>
 
-            {/* Image Upload */}
+            {/* Main Image Upload */}
             <div>
               <Label
                 required={true}
                 className="mb-2 block text-sm font-medium text-blue-700"
               >
-                Product Image
+                Main Product Image
               </Label>
               <CustomFileInput
                 name="image"
@@ -350,6 +446,29 @@ const EditProducts = ({
                   Current: {product.image}
                 </div>
               )}
+            </div>
+
+            {/* Additional Images Upload */}
+            <div className="md:col-span-2">
+              <Label className="mb-2 block text-sm font-medium text-blue-700">
+                Additional Product Images
+              </Label>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={addNewImage}
+                className="block w-full text-sm text-blue-700
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-lg file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100
+                border border-blue-200 rounded-lg p-2"
+              />
+              <p className="text-sm text-blue-600 mt-1">
+                Upload new images for product gallery (optional)
+              </p>
             </div>
 
             {/* Width */}
@@ -450,7 +569,7 @@ const EditProducts = ({
                 Product Status
               </Label>
               <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                <Switch name="isActive" defaultChecked={product.isActive} />
+                <Switch name="isActive" defaultValue={product.isActive} />
                 <span className="text-sm font-medium text-blue-800">
                   Active Product
                 </span>
@@ -468,7 +587,7 @@ const EditProducts = ({
               <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
                 <Switch
                   name="isCustomization"
-                  defaultChecked={product.isCustomization}
+                  defaultValue={product.isCustomization}
                 />
                 <span className="text-sm font-medium text-blue-800">
                   Allow Customization
@@ -509,6 +628,228 @@ const EditProducts = ({
               defaultValue={product.charateristic || ""}
               placeholder="Enter product characteristics (features, benefits, etc)..."
             />
+          </div>
+
+          {/* ==== IMAGES MANAGEMENT SECTION ==== */}
+          <div className="mb-8 p-6 border-2 border-blue-200 rounded-xl bg-gradient-to-br from-blue-50 to-white">
+            <div className="flex items-center mb-6">
+              <div className="p-2 bg-blue-100 rounded-lg mr-3">
+                <svg
+                  className="w-6 h-6 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-blue-900">
+                  Product Images Management
+                </h3>
+                <p className="text-blue-700 text-sm">
+                  Manage existing images and add new ones
+                </p>
+              </div>
+            </div>
+
+            {/* Existing Images */}
+            <div className="mb-6">
+              <h4 className="text-lg font-semibold text-blue-800 mb-4">
+                Existing Images (
+                {existingImages.filter((img) => img.keep).length} kept)
+              </h4>
+
+              {existingImages.length === 0 ? (
+                <div className="text-center py-8 bg-blue-50 rounded-lg border border-blue-100">
+                  <svg
+                    className="w-12 h-12 text-blue-300 mx-auto mb-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="1.5"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <p className="text-blue-600">No existing images found</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {existingImages.map((image, index) => (
+                    <div
+                      key={image.id}
+                      className={`flex flex-col md:flex-row items-start md:items-center gap-4 p-4 rounded-lg border-2 ${
+                        image.keep
+                          ? "border-blue-200 bg-blue-50"
+                          : "border-red-200 bg-red-50"
+                      }`}
+                    >
+                      {/* Image Preview */}
+                      <div className="flex-shrink-0">
+                        <div className="w-24 h-24 rounded-lg overflow-hidden border border-gray-300">
+                          <img
+                            src={image.preview}
+                            alt={`Product image ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Image Info and Controls */}
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              Image {index + 1}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Order: {image.order}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => moveImageUp(index)}
+                              disabled={index === 0}
+                              className="p-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Move up"
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M5 15l7-7 7 7"
+                                />
+                              </svg>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveImageDown(index)}
+                              disabled={index === existingImages.length - 1}
+                              className="p-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Move down"
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M19 9l-7 7-7-7"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Keep/Delete Toggle */}
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center">
+                            <input
+                              type="checkbox"
+                              id={`keep-image-${image.id}`}
+                              checked={image.keep}
+                              onChange={() => toggleKeepImage(index)}
+                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            />
+                            <label
+                              htmlFor={`keep-image-${image.id}`}
+                              className="ml-2 text-sm font-medium text-gray-700"
+                            >
+                              Keep this image
+                            </label>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeExistingImage(index)}
+                            className="ml-4 px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 flex items-center gap-1"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* New Images Preview */}
+            {newImages.length > 0 && (
+              <div className="mt-6">
+                <h4 className="text-lg font-semibold text-blue-800 mb-4">
+                  New Images to Add ({newImages.length})
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {newImages.map((image, index) => (
+                    <div key={image.id} className="relative">
+                      <div className="aspect-square rounded-lg overflow-hidden border-2 border-green-300 bg-green-50">
+                        <img
+                          src={image.preview}
+                          alt={`New image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="mt-2 text-xs text-gray-600 truncate">
+                        {image.name}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeNewImage(index)}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
+                        title="Remove image"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Categories Section dengan Blue Border */}
@@ -877,7 +1218,7 @@ const EditProducts = ({
             ))}
           </div>
 
-          {/* Price Tiers Section dengan Blue Accent */}
+          {/* Price Tiers Section */}
           <div className="mb-8 p-6 border-2 border-blue-200 rounded-xl bg-gradient-to-br from-blue-50 to-white">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center">
@@ -901,7 +1242,8 @@ const EditProducts = ({
                     Price Tiers
                   </h3>
                   <p className="text-blue-700 text-sm">
-                    Update quantity-based pricing tiers
+                    Update quantity-based pricing tiers (MOQ: {product.moq || 0}
+                    )
                   </p>
                 </div>
               </div>
@@ -914,82 +1256,89 @@ const EditProducts = ({
               </Button>
             </div>
 
-            {priceTiers.map((tier, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-end bg-white p-4 rounded-lg border border-blue-100"
-              >
-                <div>
-                  <Label className="mb-2 block text-sm font-medium text-blue-700">
-                    Minimum Quantity
-                  </Label>
-                  <Input
-                    type="number"
-                    placeholder="Min Qty"
-                    value={tier.minQty}
-                    onChange={(e) =>
-                      updateTier(index, "minQty", e.target.value)
-                    }
-                    required
-                    className="w-full border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <Label className="mb-2 block text-sm font-medium text-blue-700">
-                    Maximum Quantity
-                  </Label>
-                  <Input
-                    type="number"
-                    placeholder="Max Qty (optional)"
-                    value={tier.maxQty}
-                    onChange={(e) =>
-                      updateTier(index, "maxQty", e.target.value)
-                    }
-                    className="w-full border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <Label className="mb-2 block text-sm font-medium text-blue-700">
-                    Unit Price ($)
-                  </Label>
-                  <Input
-                    type="number"
-                    placeholder="Unit Price"
-                    value={tier.unitPrice}
-                    onChange={(e) =>
-                      updateTier(index, "unitPrice", e.target.value)
-                    }
-                    required
-                    className="w-full border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-
-                {/* Tambahkan button remove di sini */}
-                <div className="flex gap-2">
-                  {priceTiers.length > 1 && (
-                    <Button
-                      type="button"
-                      onClick={() => removeTier(index)}
-                      className="bg-red-100 text-red-700 hover:bg-red-200 border border-red-200"
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+            <div className="space-y-4">
+              {priceTiers.map((tier, index) => (
+                <div
+                  key={index}
+                  className="bg-white p-4 rounded-lg border border-blue-100 shadow-sm"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                      <Label className="mb-2 block text-sm font-medium text-blue-700">
+                        Minimum Quantity *
+                      </Label>
+                      <Input
+                        type="number"
+                        placeholder="Min Qty"
+                        value={tier.minQty}
+                        onChange={(e) =>
+                          updateTier(index, "minQty", e.target.value)
+                        }
+                        required
+                        min="0"
+                        className="w-full border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <Label className="mb-2 block text-sm font-medium text-blue-700">
+                        Maximum Quantity
+                      </Label>
+                      <Input
+                        type="number"
+                        placeholder="Max Qty (optional)"
+                        value={tier.maxQty}
+                        onChange={(e) =>
+                          updateTier(index, "maxQty", e.target.value)
+                        }
+                        min={tier.minQty || 0}
+                        className="w-full border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Leave empty for "and above"
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="mb-2 block text-sm font-medium text-blue-700">
+                        Unit Price per yard (Rp) *
+                      </Label>
+                      <Input
+                        type="number"
+                        placeholder="Unit Price"
+                        value={tier.unitPrice}
+                        onChange={(e) =>
+                          updateTier(index, "unitPrice", e.target.value)
+                        }
+                        required
+                        min="0"
+                        step="0.01"
+                        className="w-full border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        onClick={() => removeTier(index)}
+                        className="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 flex items-center gap-2"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </Button>
-                  )}
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* Submit Buttons dengan Blue Accent */}

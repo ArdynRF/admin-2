@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import Label from "@/components/ui/Label";
@@ -15,9 +16,26 @@ const AddProducts = ({
   styles,
   patterns,
 }) => {
+  const router = useRouter();
   const [sampleProducts, setSampleProducts] = useState([
     { color_sample: "", stock_sample: 0 },
   ]);
+
+  const [colorVariants, setColorVariants] = useState([
+    { colorName: "", stock: 0 },
+  ]);
+
+  const [priceTiers, setPriceTiers] = useState([
+    { minQty: "", maxQty: "", unitPrice: "" },
+  ]);
+
+  // Tambah state untuk multiple images
+  const [additionalImages, setAdditionalImages] = useState([]);
+
+  // State untuk loading dan success message
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [formErrorMessage, setFormErrorMessage] = useState(errorMessage || "");
 
   const addSample = () => {
     setSampleProducts([
@@ -46,10 +64,6 @@ const AddProducts = ({
     setSampleProducts(newSamples);
   };
 
-  const [colorVariants, setColorVariants] = useState([
-    { colorName: "", stock: 0 },
-  ]);
-
   const addColorVariant = () => {
     setColorVariants([...colorVariants, { colorName: "", stock: 0 }]);
   };
@@ -67,10 +81,6 @@ const AddProducts = ({
     setColorVariants(newVariants);
   };
 
-  const [priceTiers, setPriceTiers] = useState([
-    { minQty: "", maxQty: "", unitPrice: "" },
-  ]);
-
   const addTier = () => {
     setPriceTiers([...priceTiers, { minQty: "", maxQty: "", unitPrice: "" }]);
   };
@@ -79,6 +89,20 @@ const AddProducts = ({
     const tiers = [...priceTiers];
     tiers[index][key] = value;
     setPriceTiers(tiers);
+  };
+
+  const handleAdditionalImages = (e) => {
+    const files = Array.from(e.target.files);
+    const newImages = files.map((file) => ({
+      id: Date.now() + Math.random(),
+      file: file,
+      preview: URL.createObjectURL(file),
+      name: file.name,
+    }));
+    setAdditionalImages([...additionalImages, ...newImages]);
+
+    // Clear the file input
+    e.target.value = "";
   };
 
   const renderCheckboxGroup = (items, name) => (
@@ -103,27 +127,69 @@ const AddProducts = ({
     </div>
   );
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(""); // Tambah state success
-
+  // Perbaiki handleSubmit:
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSuccessMessage(""); // Reset success message
-    // ... reset errorMessage jika ada
+    setSuccessMessage("");
+    setFormErrorMessage("");
 
     const formData = new FormData(e.target);
+
+    // Validate required fields
+    const requiredFields = [
+      "id_barang",
+      "name",
+      "productType",
+      "mrp",
+      "image",
+      "width",
+      "weight",
+      "material",
+      "moq",
+      "description",
+    ];
+
+    for (const field of requiredFields) {
+      if (!formData.get(field)) {
+        setFormErrorMessage(`Field ${field} is required`);
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    // Append additional images ONLY from state
+    // JANGAN gunakan file input element lagi
+    additionalImages.forEach((image) => {
+      formData.append("additionalImages", image.file);
+    });
+
+    // Clear any existing additionalImages from formData (jaga-jaga)
+    formData.delete("additionalImages"); // Hapus dulu
+
+    // Tambahkan kembali dari state
+    additionalImages.forEach((image) => {
+      formData.append("additionalImages", image.file);
+    });
+
     formData.append("colorVariants", JSON.stringify(colorVariants));
     formData.append("priceTiers", JSON.stringify(priceTiers));
     formData.append("sampleProducts", JSON.stringify(sampleProducts));
 
     try {
-      await createProduct(formData);
-      setSuccessMessage("Product created successfully!"); // Set success message
-      // Optionally reset form
-      e.target.reset();
+      const result = await createProduct(formData);
+
+      // Jika createProduct berhasil, redirect ke /products
+      setSuccessMessage("Product created successfully!");
+
+      // Tunggu sebentar sebelum redirect untuk menampilkan success message
+      setTimeout(() => {
+        router.push("/products");
+        router.refresh();
+      }, 1500);
     } catch (error) {
       console.error("Error creating product:", error);
+      setFormErrorMessage(error.message || "Failed to create product");
     } finally {
       setIsSubmitting(false);
     }
@@ -164,11 +230,11 @@ const AddProducts = ({
       </div>
 
       {/* Error Message with Blue Accent */}
-      {errorMessage && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      {formErrorMessage && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-center">
             <svg
-              className="w-5 h-5 text-blue-600 mr-3"
+              className="w-5 h-5 text-red-600 mr-3"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -180,7 +246,7 @@ const AddProducts = ({
                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <p className="text-blue-800 font-medium">{errorMessage}</p>
+            <p className="text-red-800 font-medium">{formErrorMessage}</p>
           </div>
         </div>
       )}
@@ -202,6 +268,9 @@ const AddProducts = ({
               />
             </svg>
             <p className="text-green-800 font-medium">{successMessage}</p>
+            <p className="text-green-600 text-sm ml-3">
+              Redirecting to products page...
+            </p>
           </div>
         </div>
       )}
@@ -312,22 +381,82 @@ const AddProducts = ({
                 placeholder="Enter MRP"
                 name="mrp"
                 type="number"
+                step="0.01"
+                required
+                min="0"
                 className="w-full border-blue-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
 
-            {/* Image Upload */}
+            {/* Main Image Upload */}
             <div>
               <Label
                 required={true}
                 className="mb-2 block text-sm font-medium text-blue-700"
               >
-                Product Image
+                Main Product Image
               </Label>
               <CustomFileInput
                 name="image"
                 className="w-full border-blue-200 hover:border-blue-400"
+                required
               />
+              <p className="text-sm text-blue-600 mt-1">
+                This will be the primary display image
+              </p>
+            </div>
+
+            {/* Additional Images Upload */}
+            <div>
+              <Label className="mb-2 block text-sm font-medium text-blue-700">
+                Additional Product Images
+              </Label>
+              <input
+                type="file"
+                name="additionalImages"
+                multiple
+                accept="image/*"
+                onChange={handleAdditionalImages}
+                className="block w-full text-sm text-blue-700
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-lg file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100
+                border border-blue-200 rounded-lg p-2"
+              />
+              <p className="text-sm text-blue-600 mt-1">
+                Upload multiple images for product gallery (optional)
+              </p>
+
+              {/* Preview uploaded images */}
+              {additionalImages.length > 0 && (
+                <div className="mt-4">
+                  <Label className="mb-2 block text-sm font-medium text-blue-700">
+                    Image Previews ({additionalImages.length} images)
+                  </Label>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {additionalImages.map((image, index) => (
+                      <div key={image.id} className="relative">
+                        <div className="w-20 h-20 rounded-lg overflow-hidden border-2 border-blue-200">
+                          <img
+                            src={image.preview}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeAdditionalImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Width */}
@@ -343,6 +472,8 @@ const AddProducts = ({
                 placeholder="Enter product width"
                 required
                 type="number"
+                step="0.01"
+                min="0"
                 className="w-full border-blue-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
@@ -360,6 +491,8 @@ const AddProducts = ({
                 placeholder="Enter product weight"
                 required
                 type="number"
+                step="0.01"
+                min="0"
                 className="w-full border-blue-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
@@ -393,37 +526,33 @@ const AddProducts = ({
                 placeholder="Enter product MOQ"
                 required
                 type="number"
+                min="1"
                 className="w-full border-blue-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
 
             {/* Sample Price */}
             <div>
-              <Label
-                required={true}
-                className="mb-2 block text-sm font-medium text-blue-700"
-              >
+              <Label className="mb-2 block text-sm font-medium text-blue-700">
                 Sample Price
               </Label>
               <Input
                 name="sample_price"
                 placeholder="Enter sample price"
-                required
                 type="number"
+                step="0.01"
+                min="0"
                 className="w-full border-blue-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
 
             {/* Status */}
             <div>
-              <Label
-                required={true}
-                className="mb-2 block text-sm font-medium text-blue-700"
-              >
+              <Label className="mb-2 block text-sm font-medium text-blue-700">
                 Product Status
               </Label>
               <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                <Switch name="isActive" />
+                <Switch name="isActive" defaultChecked={true} />
                 <span className="text-sm font-medium text-blue-800">
                   Active Product
                 </span>
@@ -432,10 +561,7 @@ const AddProducts = ({
 
             {/* Customization */}
             <div>
-              <Label
-                required={true}
-                className="mb-2 block text-sm font-medium text-blue-700"
-              >
+              <Label className="mb-2 block text-sm font-medium text-blue-700">
                 Customization Available
               </Label>
               <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
@@ -446,6 +572,7 @@ const AddProducts = ({
               </div>
             </div>
           </div>
+
           {/* Description with Blue Accent */}
           <div className="mb-8 p-4 border border-blue-200 rounded-lg bg-blue-50/30">
             <Label
@@ -459,14 +586,13 @@ const AddProducts = ({
               name="description"
               rows={4}
               placeholder="Enter detailed product description..."
+              required
             />
           </div>
+
           {/* Characteristics with Blue Accent */}
           <div className="mb-8 p-4 border border-blue-200 rounded-lg bg-blue-50/30">
-            <Label
-              required={true}
-              className="mb-2 block text-sm font-medium text-blue-700"
-            >
+            <Label className="mb-2 block text-sm font-medium text-blue-700">
               Characteristics
             </Label>
             <textarea
@@ -476,6 +602,7 @@ const AddProducts = ({
               placeholder="Enter product characteristics (features, benefits, etc)..."
             />
           </div>
+
           {/* Categories Section with Blue Border */}
           <div className="mb-8 p-6 border-2 border-blue-200 rounded-xl bg-gradient-to-br from-blue-50 to-white">
             <div className="flex items-center mb-6">
@@ -575,7 +702,8 @@ const AddProducts = ({
               </div>
             </div>
           </div>
-          {/* Color Samples Section with Blue Accent */}
+
+          {/* Color Samples Section */}
           <div className="mb-8 p-6 border-2 border-blue-200 rounded-xl bg-gradient-to-br from-blue-50 to-white">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center">
@@ -676,7 +804,8 @@ const AddProducts = ({
               </div>
             ))}
           </div>
-          {/* Color Variants Section with Blue Accent */}
+
+          {/* Color Variants Section */}
           <div className="mb-8 p-6 border-2 border-blue-200 rounded-xl bg-gradient-to-br from-blue-50 to-white">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center">
@@ -778,7 +907,7 @@ const AddProducts = ({
             ))}
           </div>
 
-          {/* Price Tiers Section dengan Blue Accent */}
+          {/* Price Tiers Section */}
           <div className="mb-8 p-6 border-2 border-blue-200 rounded-xl bg-gradient-to-br from-blue-50 to-white">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center">
@@ -831,13 +960,14 @@ const AddProducts = ({
                     onChange={(e) =>
                       updateTier(index, "minQty", e.target.value)
                     }
+                    min="1"
                     required
                     className="w-full border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
                 <div>
                   <Label className="mb-2 block text-sm font-medium text-blue-700">
-                    Maximum Quantity
+                    Maximum Quantity (Optional)
                   </Label>
                   <Input
                     type="number"
@@ -846,6 +976,7 @@ const AddProducts = ({
                     onChange={(e) =>
                       updateTier(index, "maxQty", e.target.value)
                     }
+                    min="1"
                     className="w-full border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
@@ -860,19 +991,18 @@ const AddProducts = ({
                     onChange={(e) =>
                       updateTier(index, "unitPrice", e.target.value)
                     }
+                    step="0.01"
+                    min="0"
                     required
                     className="w-full border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
 
-                {/* Tambahkan button remove di sini */}
                 <div className="flex gap-2">
                   {priceTiers.length > 1 && (
                     <Button
                       type="button"
-                      onClick={() => {
-                        removeTier(index);
-                      }}
+                      onClick={() => removeTier(index)}
                       className="bg-red-100 text-red-700 hover:bg-red-200 border border-red-200"
                     >
                       <svg
@@ -894,7 +1024,8 @@ const AddProducts = ({
               </div>
             ))}
           </div>
-          {/* Submit Buttons with Blue Accent */}
+
+          {/* Submit Buttons */}
           <div className="flex justify-end space-x-4 pt-8 border-t border-blue-200">
             <Link href="/products">
               <Button
